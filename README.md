@@ -76,7 +76,7 @@ pub async fn signature_read(
 
 # Permission provider
 
-We do not specify the container for actual permission provider, so the traits must me implemented for a type, which implements `Send` and `Copy`
+We do not specify the container for actual permission provider, so the traits must be implemented for a type, which implements `Send` and `Copy`
 
 For example, `sqlx` Postgres `Pool` must be wraped in an `Arc` to pass to the rocket state.
 The library doesn't know about the `Arc` and rust doesn't allow implementing traits for `Arc` in different crates, so the user has to create a wrapper:
