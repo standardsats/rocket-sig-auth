@@ -1,0 +1,30 @@
+[package]
+name = "rocket-sig-auth"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "rocket_sig_auth"
+path = "src/lib.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+async-trait = "0.1.73"
+chrono = { version = "0.4", features = [ "serde", "clock", "std" ] }
+log = "0.4.14"
+rocket = { version = "0.5.0-rc.2"}
+rocket_okapi = { git = "https://github.com/GREsau/okapi", rev = "ddb07a709129b24ed8e106b0fbf576b6ded615ac"}
+secp256k1 = { version = "0.27.0", features = [ "bitcoin_hashes" ] }
+serde = { version = "1.0"}
+serde_json = { version = "1.0", features = ["arbitrary_precision"] }
+thiserror = "1.0"
+
+[dev-dependencies]
+rocket_okapi = { git = "https://github.com/GREsau/okapi", rev = "ddb07a709129b24ed8e106b0fbf576b6ded615ac", features = [
+  "rapidoc",
+  "swagger",
+] }
+rusqlite = "0.29.0"
+either = "1.8.0"
+schemars = { version = "0.8.11" }
