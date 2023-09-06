@@ -21,6 +21,59 @@ Requires
 #![feature(adt_const_params)]
 ```
 
+Example alias:
+
+``` rust
+#[derive(Debug, Clone, PartialEq, Eq, Copy)]
+pub enum UserPermission {
+  Read,
+  Write,
+  Sudo
+}
+
+impl UserPermission {
+    pub const fn as_u8(perm: UserPermission) -> u8 {
+        match perm {
+            UserPermission::Read => 0,
+            UserPermission::Write => 1,
+            UserPermission::Sudo => 2,
+        }
+    }
+}
+
+impl TryFrom<u8> for UserPermission {
+    type Error = ();
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(UserPermission::Read),
+            1 => Ok(UserPermission::Write),
+            2 => Ok(UserPermission::Sudo),
+            _ => Err(()),
+        }
+    }
+}
+
+type AuthSignature<const PERM: UserPermission, T> =
+    PublicKeyAuth<UserPermission, AuthInfo, AuthDb, { UserPermission::as_u8(PERM) }, T>;
+
+```
+
+Alias usage in handles:
+
+``` rust
+
+#[openapi(tag = "example")]
+#[post("/signature/read", data = "<req>")]
+pub async fn signature_read(
+  req: AuthSignature<{ UserPermission::Read }, String>
+) -> Json<String> {
+    log::info!("User id {}", req.auth);
+    Json(req.data.to_string())
+}
+
+```
+
 # Permission provider
 
 We do not specify the container for actual permission provider, so the traits must me implemented for a type, which implements `Send` and `Copy`

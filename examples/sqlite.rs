@@ -79,16 +79,6 @@ impl TryFrom<u8> for UserPermission {
     }
 }
 
-impl Into<u8> for UserPermission {
-    fn into(self) -> u8 {
-        match self {
-            UserPermission::Read => 0,
-            UserPermission::Write => 1,
-            UserPermission::Sudo => 2,
-        }
-    }
-}
-
 pub struct User {
     pub id: i32,
     pub role: Role,
