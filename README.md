@@ -86,10 +86,13 @@ pub struct AuthPool(pub Pool)
 
 and implement authorization traits for `AuthPool`
 
-In a different example, `rusqlite` `Connection` has to be wrapped into `Arc<Mutex<Connection>>`. Same idea: wrap the resulting container into a newtype and implent traits for it.
+In a different example, `rusqlite` `Connection` has to be wrapped into `Arc<Mutex<Connection>>`. Same idea: wrap the resulting container into a newtype and implement traits for it.
 
 # Nonce handling
 
 Authorization scheme uses UTC timestamps (in seconds!) as a nonce.
+
 The library doesn't cache nonces (yet?) and implements stateless authorization scheme.
-To limit a possibility of repeating attacks nonces have expiration. Permission provider gives `nonce_timeout`. If current UTC timestamp on the server differs from provided nonce timestamp for more than `nonce_timeout` seconds, the request is invalid and no further checks are made.
+To limit the possibility of repeating attacks nonces have expiration. 
+
+Permission provider gives `nonce_timeout`. If current UTC timestamp on the server differs from provided nonce timestamp for more than `nonce_timeout` seconds, the request is invalid and no further checks are made.
