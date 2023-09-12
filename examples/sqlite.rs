@@ -1,6 +1,3 @@
-#![allow(incomplete_features)]
-#![feature(generic_const_exprs)]
-#![feature(adt_const_params)]
 use std::{error::Error, str::FromStr, sync::Arc};
 
 use async_trait::async_trait;
@@ -256,12 +253,9 @@ pub async fn unauth_register_endpoint(
 }
 
 type UnauthSignature<T> = PublicKeyAuth<u8, String, AuthDb, 0, T>;
-type AuthSignature<const PERM: UserPermission, T> =
-    PublicKeyAuth<UserPermission, AuthInfo, AuthDb, { UserPermission::as_u8(PERM) }, T>;
-type AuthToken<const PERM: UserPermission> =
-    TokenAuth<UserPermission, AuthInfo, AuthDb, { UserPermission::as_u8(PERM) }>;
-type AuthCombined<const PERM: UserPermission, T> =
-    CombinedAuth<UserPermission, AuthInfo, AuthDb, { UserPermission::as_u8(PERM) }, T>;
+type AuthSignature<const PERM: u8, T> = PublicKeyAuth<UserPermission, AuthInfo, AuthDb, PERM, T>;
+type AuthToken<const PERM: u8> = TokenAuth<UserPermission, AuthInfo, AuthDb, PERM>;
+type AuthCombined<const PERM: u8, T> = CombinedAuth<UserPermission, AuthInfo, AuthDb, PERM, T>;
 
 #[openapi(tag = "example")]
 #[post("/register/publickey", data = "<req>")]
@@ -275,62 +269,60 @@ pub async fn pkey_register_endpoint(db: &State<DbMux>, req: UnauthSignature<Role
 
 #[openapi(tag = "example")]
 #[get("/token/read")]
-pub async fn token_read(auth: AuthToken<{ UserPermission::Read }>) -> Json<String> {
+pub async fn token_read(auth: AuthToken<0>) -> Json<String> {
     Json(auth.auth.to_string())
 }
 
 #[openapi(tag = "example")]
 #[get("/token/write")]
-pub async fn token_write(auth: AuthToken<{ UserPermission::Write }>) -> Json<String> {
+pub async fn token_write(auth: AuthToken<1>) -> Json<String> {
     Json(auth.auth.to_string())
 }
 
 #[openapi(tag = "example")]
 #[get("/token/sudo")]
-pub async fn token_sudo(auth: AuthToken<{ UserPermission::Sudo }>) -> Json<String> {
+pub async fn token_sudo(auth: AuthToken<2>) -> Json<String> {
     Json(auth.auth.to_string())
 }
 
 #[openapi(tag = "example")]
 #[post("/signature/read", data = "<req>")]
-pub async fn signature_read(req: AuthSignature<{ UserPermission::Read }, String>) -> Json<String> {
+pub async fn signature_read(req: AuthSignature<0, String>) -> Json<String> {
     log::info!("User id {}", req.auth);
     Json(req.data.to_string())
 }
 
 #[openapi(tag = "example")]
 #[post("/signature/write", data = "<req>")]
-pub async fn signature_write(
-    req: AuthSignature<{ UserPermission::Write }, String>,
-) -> Json<String> {
+pub async fn signature_write(req: AuthSignature<1, String>) -> Json<String> {
     log::info!("User id {}", req.auth);
     Json(req.data.to_string())
 }
 
 #[openapi(tag = "example")]
 #[post("/signature/sudo", data = "<req>")]
-pub async fn signature_sudo(req: AuthSignature<{ UserPermission::Sudo }, String>) -> Json<String> {
+pub async fn signature_sudo(req: AuthSignature<2, String>) -> Json<String> {
     log::info!("User id {}", req.auth);
     Json(req.data.to_string())
 }
 
 #[openapi(tag = "example")]
 #[post("/combined/read", data = "<req>")]
-pub async fn combined_read(req: AuthCombined<{ UserPermission::Read }, String>) -> Json<String> {
+pub async fn combined_read(req: AuthCombined<0, String>) -> Json<String> {
     log::info!("User id {}", req.auth);
     Json(req.data.to_string())
 }
 
 #[openapi(tag = "example")]
 #[post("/combined/write", data = "<req>")]
-pub async fn combined_write(req: AuthCombined<{ UserPermission::Write }, String>) -> Json<String> {
+pub async fn combined_write(req: AuthCombined<1, String>) -> Json<String> {
     log::info!("User id {}", req.auth);
     Json(req.data.to_string())
 }
 
 #[openapi(tag = "example")]
 #[post("/combined/sudo", data = "<req>")]
-pub async fn combined_sudo(req: AuthCombined<{ UserPermission::Sudo }, String>) -> Json<String> {
+pub async fn combined_sudo(req: AuthCombined<2, String>) -> Json<String> {
     log::info!("User id {}", req.auth);
     Json(req.data.to_string())
 }
