@@ -76,7 +76,7 @@ pub async fn signature_read(
 
 # Permission provider
 
-We do not specify the container for actual permission provider, so the traits must me implemented for a type, which implements `Send` and `Copy`
+We do not specify the container for actual permission provider, so the traits must be implemented for a type, which implements `Send` and `Copy`
 
 For example, `sqlx` Postgres `Pool` must be wraped in an `Arc` to pass to the rocket state.
 The library doesn't know about the `Arc` and rust doesn't allow implementing traits for `Arc` in different crates, so the user has to create a wrapper:
@@ -86,10 +86,13 @@ pub struct AuthPool(pub Pool)
 
 and implement authorization traits for `AuthPool`
 
-In a different example, `rusqlite` `Connection` has to be wrapped into `Arc<Mutex<Connection>>`. Same idea: wrap the resulting container into a newtype and implent traits for it.
+In a different example, `rusqlite` `Connection` has to be wrapped into `Arc<Mutex<Connection>>`. Same idea: wrap the resulting container into a newtype and implement traits for it.
 
 # Nonce handling
 
 Authorization scheme uses UTC timestamps (in seconds!) as a nonce.
+
 The library doesn't cache nonces (yet?) and implements stateless authorization scheme.
-To limit a possibility of repeating attacks nonces have expiration. Permission provider gives `nonce_timeout`. If current UTC timestamp on the server differs from provided nonce timestamp for more than `nonce_timeout` seconds, the request is invalid and no further checks are made.
+To limit the possibility of repeating attacks nonces have expiration. 
+
+Permission provider gives `nonce_timeout`. If current UTC timestamp on the server differs from provided nonce timestamp for more than `nonce_timeout` seconds, the request is invalid and no further checks are made.
