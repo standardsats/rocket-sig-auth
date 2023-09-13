@@ -79,3 +79,17 @@ where
     pub phantom0: PhantomData<Perm>,
     pub phantom1: PhantomData<Provider>,
 }
+
+/// Type implementing rocket request guard for public key authorization scheme
+/// Passes auth info and data to handler
+/// Phantoms are required to keep the compiler happy
+pub struct PublicKeyBytesAuth<Perm, AuthInfo, Provider, const PERM: u8>
+where
+    Perm: TryFrom<u8>,
+    Provider: HasPublicKeyAuth<Perm, AuthInfo>,
+{
+    pub auth: AuthInfo,
+    pub data: Vec<u8>,
+    pub phantom_perm: PhantomData<Perm>,
+    pub phantom_provider: PhantomData<Provider>,
+}
