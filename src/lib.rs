@@ -1,5 +1,3 @@
-#![allow(incomplete_features)]
-#![feature(adt_const_params)]
 use async_trait::async_trait;
 use types::{PermissionCheck, PublicKey, Token};
 
