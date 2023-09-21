@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use types::{PermissionCheck, PublicKey, Token};
+use types::{AuthSchemaTag, PermissionCheck, PublicKey, Token};
 
 pub mod combined;
 pub mod error;
@@ -42,7 +42,7 @@ where
 
     /// Get nonce timeout in seconds
     /// If current timestamp and nonce timestamp differ for more than the timeout, access is forbidden
-    async fn get_nonce_timeout(&self) -> u64;
+    async fn get_nonce_timeout(&self, schema: AuthSchemaTag) -> u64;
 }
 
 /// Combined authorization scheme
@@ -70,7 +70,7 @@ where
 
     /// Get nonce timeout in seconds
     /// If current timestamp and nonce timestamp differ for more than the timeout, access is forbidden
-    async fn get_nonce_timeout(&self) -> u64;
+    async fn get_nonce_timeout(&self, schema: AuthSchemaTag) -> u64;
 }
 
 // Default implementation of CombinedAuth in case the provider has both Token and Public key implemented
@@ -97,7 +97,7 @@ impl<
         <T as HasPublicKeyAuth<Perm, AuthInfo>>::get_domain(self).await
     }
 
-    async fn get_nonce_timeout(&self) -> u64 {
-        <T as HasPublicKeyAuth<Perm, AuthInfo>>::get_nonce_timeout(self).await
+    async fn get_nonce_timeout(&self, schema: AuthSchemaTag) -> u64 {
+        <T as HasPublicKeyAuth<Perm, AuthInfo>>::get_nonce_timeout(self, schema).await
     }
 }

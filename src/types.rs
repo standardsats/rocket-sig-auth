@@ -93,3 +93,11 @@ where
     pub phantom_perm: PhantomData<Perm>,
     pub phantom_provider: PhantomData<Provider>,
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum AuthSchemaTag {
+    SigJson,
+    SigBytes,
+    ApiToken,
+    Combined,
+}

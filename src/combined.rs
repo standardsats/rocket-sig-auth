@@ -17,7 +17,7 @@ use std::{io, marker::PhantomData};
 use crate::{
     error::Error,
     signature::check_signature,
-    types::{CombinedAuth, PermissionCheck, PublicKey, Token},
+    types::{AuthSchemaTag, CombinedAuth, PermissionCheck, PublicKey, Token},
     HasCombinedAuth,
 };
 use rocket::data::FromData;
@@ -76,7 +76,7 @@ impl<
                     return Outcome::Failure((Status::Unauthorized, Error::MissingXNonce));
                 };
                 let nonce = nonce.unwrap();
-                let timeout = pp.get_nonce_timeout().await;
+                let timeout = pp.get_nonce_timeout(AuthSchemaTag::Combined).await;
                 if let Ok(nonce) = nonce.parse::<i64>() {
                     let now = chrono::Utc::now().naive_utc().timestamp();
                     // 10 seconds to deliver the request
