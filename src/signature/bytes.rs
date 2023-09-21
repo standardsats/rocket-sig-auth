@@ -14,7 +14,7 @@ use std::{io, marker::PhantomData};
 
 use crate::{
     error::Error,
-    types::{PermissionCheck, PublicKey, PublicKeyBytesAuth},
+    types::{AuthSchemaTag, PermissionCheck, PublicKey, PublicKeyBytesAuth},
     HasPublicKeyAuth,
 };
 use rocket::data::FromData;
@@ -51,7 +51,7 @@ impl<
         };
         let nonce = nonce.unwrap();
 
-        let timeout = pp.get_nonce_timeout().await;
+        let timeout = pp.get_nonce_timeout(AuthSchemaTag::SigBytes).await;
 
         if let Ok(nonce) = nonce.parse::<i64>() {
             let now = chrono::Utc::now().naive_utc().timestamp();

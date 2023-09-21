@@ -207,7 +207,7 @@ impl HasPublicKeyAuth<UserPermission, AuthInfo> for AuthDb {
         db.domain.clone()
     }
 
-    async fn get_nonce_timeout(&self) -> u64 {
+    async fn get_nonce_timeout(&self, _: AuthSchemaTag) -> u64 {
         self.0.lock().await.timeout
     }
 }
@@ -227,7 +227,7 @@ impl HasPublicKeyAuth<u8, String> for AuthDb {
         db.domain.clone()
     }
 
-    async fn get_nonce_timeout(&self) -> u64 {
+    async fn get_nonce_timeout(&self, _: AuthSchemaTag) -> u64 {
         self.0.lock().await.timeout
     }
 }
