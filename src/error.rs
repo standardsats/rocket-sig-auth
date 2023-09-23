@@ -34,6 +34,8 @@ pub enum Error {
     Parse(serde_json::error::Error),
     #[error("Failed to get the provider")]
     NoProvider,
+    #[error("Body present for () request")]
+    ExtraBody,
 }
 
 impl Debug for Error {

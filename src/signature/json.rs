@@ -12,7 +12,7 @@ use rocket_okapi::{
     request::OpenApiFromData,
     JsonSchema,
 };
-use std::{io, marker::PhantomData};
+use std::{any::TypeId, io, marker::PhantomData};
 
 use crate::{
     error::Error,
@@ -30,7 +30,7 @@ impl<
         Perm: TryFrom<u8>,
         AuthInfo,
         PermProvider: HasPublicKeyAuth<Perm, AuthInfo> + Send + Sync + 'static,
-        T: for<'de> Deserialize<'de>,
+        T: for<'de> Deserialize<'de> + 'static,
     > FromData<'a> for PublicKeyAuth<Perm, AuthInfo, PermProvider, PERM, T>
 {
     type Error = crate::error::Error;
@@ -106,9 +106,18 @@ impl<
             .await
         {
             PermissionCheck::Success(auth) => {
-                // We have to put the bytes in the requests local cahe so they outlive the guard
-                let bytes = rocket::request::local_cache!(req, data_bytes);
-                match serde_json::from_slice(bytes) {
+                // Special case for empty post requests. Expect no body
+                let data = if TypeId::of::<()>() == TypeId::of::<T>() {
+                    if !data_bytes.is_empty() {
+                        return Outcome::Failure((Status::BadRequest, Error::ExtraBody));
+                    };
+                    serde_json::from_value(serde_json::Value::Null)
+                } else {
+                    // We have to put the bytes in the requests local cahe so they outlive the guard
+                    let bytes = rocket::request::local_cache!(req, data_bytes);
+                    serde_json::from_slice(bytes)
+                };
+                match data {
                     Ok(data) => Outcome::Success(PublicKeyAuth {
                         auth,
                         data,
@@ -137,7 +146,7 @@ impl<
         Perm: TryFrom<u8>,
         AuthInfo,
         PermProvider: HasPublicKeyAuth<Perm, AuthInfo> + Send + Sync + 'static,
-        T: for<'de> Deserialize<'de> + JsonSchema,
+        T: for<'de> Deserialize<'de> + JsonSchema + 'static,
     > OpenApiFromData<'a> for PublicKeyAuth<Perm, AuthInfo, PermProvider, PERM, T>
 {
     fn request_body(
